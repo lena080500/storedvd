@@ -91,4 +91,40 @@ class Discount(models.Model): #скидки
         verbose_name_plural = 'Скидки'  # название в админке Product во множественном числе
 
     def __str__(self):
-        return self.code + ' (' + str(self.value) + '%'
+        return self.code + ' (' + str(self.value) + '%)'
+
+class Order(models.Model):   #Заказы
+    need_delivery = models.BooleanField(verbose_name='необходимость доставки'),
+    discount = models.ForeignKey(Discount,
+                                 verbose_name = 'Скидка',
+                                 on_delete = models.SET_NULL(),
+                                 null = True)
+    name = models.CharField(max_length = 0,
+                            verbose_name = 'Имя')
+    phone = models.CharField(max_length = 70, verbose_name = 'Номер')
+    email = models.EmailField()  #Email
+    address = models.TextField(verbose_name = 'Адрес', blank = True) #может не заполнять, если не требуется доставка
+    notice = models.TextField(blank = True, verbose_name = 'Примечание к заказу') #комментарий
+    date_order = models.DateTimeField(
+        auto_now_add = True,  #берется текущая дата со временем
+        verbose_name = 'Дата заказа',
+    )
+    date_send = models.DateTimeField(
+        null = True,
+        blank= True,
+        verbose_name = 'Дата отправки',
+    )
+    STATUSES = [  #Статус заказа
+        ('New', 'Новый заказ'),  #значение статуса и его перевод
+        ('Apr', 'Подтвержден'),
+        ('Pay', 'Опдачен'),
+        ('Cnl', 'Отменен')
+    ]
+    status = models.CharField(choices = STATUSES, max_length = 3, default = 'New', verbose_name = 'Статус')
+    class Meta:  # настройки способа отображения
+        ordering = ['date']  # сортировка по размеру скидки
+        verbose_name = 'Заказ'  # название в админке Order
+        verbose_name_plural = 'Заказы'  # название в админке Order во множественном числе
+
+    def __str__(self):
+        return 'ID:' + str(self.id)
